@@ -4,8 +4,8 @@ import android.app.Activity;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.administrator.model.SubscribeObj;
 import com.example.administrator.model.WXPay;
-import com.example.administrator.pay.MainActivity;
 import com.google.gson.Gson;
 import com.tencent.mm.sdk.modelpay.PayReq;
 import com.tencent.mm.sdk.openapi.IWXAPI;
@@ -17,7 +17,9 @@ import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
@@ -46,7 +48,7 @@ public class MainPresenter {
 
         if(api.isWXAppInstalled())
         {
-            rx.Observable.just(type)//指定购买的商品ID
+            Observable.just(type)//指定购买的商品ID
                     .observeOn(Schedulers.newThread())
                     .map(new Func1<Integer, String>() {
                         @Override
@@ -88,40 +90,59 @@ public class MainPresenter {
                             return ret;
                         }
                     })
-                    .map(new Func1<String, WXPay>() {
+                    .map(new Func1<String, SubscribeObj>() {
                         @Override
-                        public WXPay call(String s) {
+                        public SubscribeObj call(String s) {
                             if (s != null)
                             {
+                                SubscribeObj ret = new SubscribeObj(0,"");
                                 final Gson gson = new Gson();
-                                WXPay ret = gson.fromJson(s,WXPay.class);
-                                ret.packag = "Sign=WXPay";
+                                WXPay obj = gson.fromJson(s,WXPay.class);
+                                obj.packag = "Sign=WXPay";
+                                ret.obj = obj;
                                 return ret;
                             }
-                            return null;
+                            else
+                            {
+                                SubscribeObj ret = new SubscribeObj(0,"网络异常");
+                                return ret;
+                            }
                         }
                     })
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Action1<WXPay>() {
+                    .subscribe(new Action1<SubscribeObj>() {
                         @Override
-                        public void call(WXPay wxPay) {
+                        public void call(SubscribeObj obj) {
 
-                            {
+                            if (obj.ret == 0) {
+                                WXPay wxPay = (WXPay) obj.obj;
                                 api.registerApp(WX_APPID);
 
                                 PayReq req = new PayReq();
-                                req.appId			= WX_APPID;
-                                req.partnerId		= wxPay.partnerid;
-                                req.prepayId		= wxPay.prepayid;
-                                req.nonceStr		= wxPay.noncestr;
-                                req.timeStamp		= wxPay.timestamp;
-                                req.packageValue	= wxPay.packag;
-                                req.sign			= wxPay.sign;
-                                req.extData			= wxPay.extData; // optional
+                                req.appId = WX_APPID;
+                                req.partnerId = wxPay.partnerid;
+                                req.prepayId = wxPay.prepayid;
+                                req.nonceStr = wxPay.noncestr;
+                                req.timeStamp = wxPay.timestamp;
+                                req.packageValue = wxPay.packag;
+                                req.sign = wxPay.sign;
+                                req.extData = wxPay.extData; // optional
                                 Toast.makeText(mActivity, "正常调起支付", Toast.LENGTH_SHORT).show();
                                 api.sendReq(req);
+                            } else {
+                                Toast.makeText(mActivity, obj.msg, Toast.LENGTH_SHORT).show();
                             }
 
+                        }
+                    }, new Action1<Throwable>() {
+                        @Override
+                        public void call(Throwable throwable) {
+                            Toast.makeText(mActivity, throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }, new Action0() {
+                        @Override
+                        public void call() {
+                            Log.d(Tag,"Completed");
                         }
                     });
         }
