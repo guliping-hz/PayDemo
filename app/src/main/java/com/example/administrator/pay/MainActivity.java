@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     static final String Tag = "MainActivity";
 
     Subscription mBtnWxSub;
+    Subscription mBtnAliSub;
     MainPresenter mPresenter;
 
     @Override
@@ -64,6 +65,19 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
+        mBtnAliSub = RxView.clicks(mBtnAli)
+                .throttleFirst(500, TimeUnit.MILLISECONDS)
+                .subscribe(new Action1<Void>() {
+                    @Override
+                    public void call(Void aVoid) {
+                        Log.d(Tag,"Click WX");
+
+                        //测试 商品ID为1
+                        mPresenter.doAliPay(MainActivity.this);
+
+                    }
+                });
+
     }
 
     @Override
@@ -71,5 +85,6 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
 
         mBtnWxSub.unsubscribe();
+        mBtnAliSub.unsubscribe();
     }
 }
