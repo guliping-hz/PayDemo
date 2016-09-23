@@ -1,4 +1,4 @@
-package com.example.administrator.model;
+package com.example.administrator.pay.model;
 
 /**
  * Created by Administrator on 2016/6/23.

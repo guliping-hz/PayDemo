@@ -1,4 +1,4 @@
-package net.sourceforge.simcpux.wxapi;
+package com.example.administrator.pay.wxapi;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.example.administrator.pay.R;
-import com.example.administrator.presenter.MainPresenter;
+import com.example.administrator.pay.presenter.MainPresenter;
 import com.tencent.mm.sdk.constants.ConstantsAPI;
 import com.tencent.mm.sdk.modelbase.BaseReq;
 import com.tencent.mm.sdk.modelbase.BaseResp;

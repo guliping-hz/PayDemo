@@ -1,6 +1,4 @@
-package com.example.administrator.model;
-
-import rx.Subscriber;
+package com.example.administrator.pay.model;
 
 /**
  * Created by Administrator on 2016/6/24.
