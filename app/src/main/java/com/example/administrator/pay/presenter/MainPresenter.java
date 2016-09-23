@@ -8,8 +8,8 @@ import android.widget.Toast;
 import com.alipay.sdk.app.PayTask;
 import com.example.administrator.Alipay.OrderInfoUtil;
 import com.example.administrator.Alipay.PayResult;
-import com.example.administrator.model.SubscribeObj;
-import com.example.administrator.model.WXPay;
+import com.example.administrator.pay.model.SubscribeObj;
+import com.example.administrator.pay.model.WXPay;
 import com.google.gson.Gson;
 import com.tencent.mm.sdk.modelpay.PayReq;
 import com.tencent.mm.sdk.openapi.IWXAPI;
@@ -66,15 +66,13 @@ public class MainPresenter {
     //支付宝配置参数 end
 
     /***
-     *
      * @param activity
-     * @param type 商品ID
+     * @param type     商品ID
      */
-    public void doWxPay(final Activity activity,int type){
+    public void doWxPay(final Activity activity, int type) {
         final IWXAPI api = WXAPIFactory.createWXAPI(activity, WX_APPID);
 
-        if(api.isWXAppInstalled())
-        {
+        if (api.isWXAppInstalled()) {
             Observable.just(type)//指定购买的商品ID
                     .observeOn(Schedulers.newThread())
                     .map(new Func1<Integer, String>() {
@@ -100,15 +98,15 @@ public class MainPresenter {
                             Response response = null;
                             String ret = null;
                             try {
-                                response  = client.newCall(request).execute();
+                                response = client.newCall(request).execute();
 
                                 Headers responseHeaders = response.headers();
                                 for (int i = 0; i < responseHeaders.size(); i++) {
-                                    Log.d(Tag,"Get Headers : "+responseHeaders.name(i) + ": " + responseHeaders.value(i));
+                                    Log.d(Tag, "Get Headers : " + responseHeaders.name(i) + ": " + responseHeaders.value(i));
                                 }
 
                                 ret = response.body().string();
-                                Log.d(Tag,"Get Body : "+ret);
+                                Log.d(Tag, "Get Body : " + ret);
 
                             } catch (IOException e) {
                                 e.printStackTrace();
@@ -120,18 +118,15 @@ public class MainPresenter {
                     .map(new Func1<String, SubscribeObj>() {
                         @Override
                         public SubscribeObj call(String s) {
-                            if (s != null)
-                            {
-                                SubscribeObj ret = new SubscribeObj(0,"");
+                            if (s != null) {
+                                SubscribeObj ret = new SubscribeObj(0, "");
                                 final Gson gson = new Gson();
-                                WXPay obj = gson.fromJson(s,WXPay.class);
+                                WXPay obj = gson.fromJson(s, WXPay.class);
                                 obj.packag = "Sign=WXPay";
                                 ret.obj = obj;
                                 return ret;
-                            }
-                            else
-                            {
-                                SubscribeObj ret = new SubscribeObj(0,"网络异常");
+                            } else {
+                                SubscribeObj ret = new SubscribeObj(0, "网络异常");
                                 return ret;
                             }
                         }
@@ -169,17 +164,15 @@ public class MainPresenter {
                     }, new Action0() {
                         @Override
                         public void call() {
-                            Log.d(Tag,"Completed");
+                            Log.d(Tag, "Completed");
                         }
                     });
-        }
-        else
-        {
+        } else {
             Toast.makeText(activity, "请先安装微信", Toast.LENGTH_SHORT).show();
         }
     }
 
-    public void doAliPay(final Activity activity){
+    public void doAliPay(final Activity activity) {
 
         Observable.just("")
                 .observeOn(Schedulers.io())
