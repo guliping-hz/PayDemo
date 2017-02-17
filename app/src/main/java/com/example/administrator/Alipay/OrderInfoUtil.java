@@ -1,6 +1,6 @@
 package com.example.administrator.Alipay;
 
-import com.example.administrator.presenter.MainPresenter;
+import com.example.administrator.pay.presenter.MainPresenter;
 
 import java.util.Random;
 
